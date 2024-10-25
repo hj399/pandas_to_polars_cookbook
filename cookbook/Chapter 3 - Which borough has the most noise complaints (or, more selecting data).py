@@ -1,6 +1,8 @@
 # %%
 import pandas as pd
 import matplotlib.pyplot as plt
+import polars as pl
+import seaborn as sns
 
 
 # Make the graphs a bit prettier, and bigger
@@ -19,6 +21,8 @@ complaints = pd.read_csv("../data/311-service-requests.csv", dtype="unicode")
 
 # %%
 # TODO: rewrite the above using the polars library (you might have to import it above) and call the data frame pl_complaints
+pl_complaints = pl.read_csv("../data/311-service-requests.csv", infer_schema_length=0)
+
 
 # %%
 # 3.1 Selecting only noise complaints
@@ -27,6 +31,7 @@ complaints[:5]
 
 # %%
 # TODO: rewrite the above in polars
+pl_complaints.head(5)
 
 # %%
 # To get the noise complaints, we need to find the rows where the "Complaint Type" column is "Noise - Street/Sidewalk".
@@ -35,6 +40,8 @@ noise_complaints[:3]
 
 # %%
 # TODO: rewrite the above in polars
+pl_noise_complaints = pl_complaints.filter(pl_complaints["Complaint Type"] == "Noise - Street/Sidewalk")
+pl_noise_complaints.head(3)
 
 
 # %%
@@ -46,6 +53,10 @@ complaints[is_noise & in_brooklyn][:5]
 # %%
 # TODO: rewrite the above using the Polars library. In polars these conditions are called Expressions.
 # Check out the Polars documentation for more info.
+is_noise = pl_complaints["Complaint Type"] == "Noise - Street/Sidewalk"
+in_brooklyn = pl_complaints["Borough"] == "BROOKLYN"
+filtered_complaints = pl_complaints.filter(is_noise & in_brooklyn)
+filtered_complaints.head(5)
 
 
 # %%
@@ -56,6 +67,7 @@ complaints[is_noise & in_brooklyn][
 
 # %%
 # TODO: rewrite the above using the polars library
+filtered_complaints.select(["Complaint Type", "Borough", "Created Date", "Descriptor"]).head(10)
 
 
 # %%
@@ -66,6 +78,9 @@ noise_complaints["Borough"].value_counts()
 
 # %%
 # TODO: rewrite the above using the polars library
+is_noise = pl_complaints["Complaint Type"] == "Noise - Street/Sidewalk"
+pl_noise_complaints = pl_complaints.filter(is_noise)
+pl_noise_complaints.groupby("Borough").agg(pl.count()).sort("count", reverse=True)
 
 
 # %%

@@ -1,7 +1,8 @@
 # %%
 import pandas as pd
 import matplotlib.pyplot as plt
-
+import polars as pl
+import seaborn as sns
 
 # %%
 # Reading data from a csv file
@@ -14,12 +15,16 @@ import matplotlib.pyplot as plt
 broken_df = pd.read_csv("../data/bikes.csv", encoding="ISO-8859-1")
 
 # TODO: please load the data with the Polars library (do not forget to import Polars at the top of the script) and call it pl_broken_df
+pl_broken_df = pl.read_csv("../data/bikes.csv", encoding="ISO-8859-1")
+
 
 # %%
 # Look at the first 3 rows
-broken_df[:3]
+broken_df[:3] 
+
 
 # TODO: do the same with your polars data frame, pl_broken_df
+pl_broken_df.head(3)
 
 # %%
 # You'll notice that this is totally broken! `read_csv` has a bunch of options that will let us fix that, though. Here we'll
@@ -39,8 +44,15 @@ fixed_df = pd.read_csv(
     index_col="Date",
 )
 fixed_df[:3]
-
 # TODO: do the same (or similar) with polars
+pl_fixed_df = pl.read_csv(
+    "../data/bikes.csv",
+    separator=";",  # Equivalent to `sep` in Pandas
+    encoding="latin1",  # Encoding used
+    try_parse_dates=True  # Polars will attempt to parse dates
+)
+fixed_df[:3]
+
 
 
 # %%
@@ -51,6 +63,7 @@ fixed_df[:3]
 fixed_df["Berri 1"]
 
 # TODO: how would you do this with a Polars data frame?
+pl_fixed_df.select("Berri 1")
 
 
 # %%
@@ -60,6 +73,13 @@ fixed_df["Berri 1"].plot()
 # TODO: how would you do this with a Polars data frame?
 
 
+
+
+sns.lineplot(x=pl_fixed_df["Date"], y=pl_fixed_df["Berri 1"])
+plt.xlabel("Date")
+plt.ylabel("Berri 1 Count")
+plt.title("Berri 1 Usage Over Time")
+plt.show()
 # %%
 # We can also plot all the columns just as easily. We'll make it a little bigger, too.
 # You can see that it's more squished together, but all the bike paths behave basically the same -- if it's a bad day for cyclists, it's a bad day everywhere.
@@ -67,3 +87,13 @@ fixed_df["Berri 1"].plot()
 fixed_df.plot(figsize=(15, 10))
 
 # TODO: how would you do this with a Polars data frame? With Polars data frames you might have to use the Seaborn library and it mmight not work out of the box as with pandas.
+pl_fixed_df_pd = pl_fixed_df.to_pandas()  # Convert to Pandas DataFrame
+
+# Plot using Pandas
+pl_fixed_df_pd.plot(figsize=(15, 10))
+plt.xlabel("Date")
+plt.ylabel("Counts")
+plt.title("Bike Path Usage")
+plt.show()
+
+# %%
